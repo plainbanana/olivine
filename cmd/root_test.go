@@ -81,6 +81,21 @@ func TestGetHistoryAPI(t *testing.T) {
 			   ]
 			}
 		 }`},
+		{"valid03", "taskattempt", `{
+			"taskAttempt" : {
+			   "assignedContainerId" : "container_1326381300833_0002_01_000002",
+			   "progress" : 100,
+			   "elapsedTime" : 2638,
+			   "state" : "SUCCEEDED",
+			   "diagnostics" : "",
+			   "rack" : "/98.139.92.0",
+			   "nodeHttpAddress" : "host.domain.com:8042",
+			   "startTime" : 1326381450680,
+			   "id" : "attempt_1326381300833_2_2_m_0_0",
+			   "type" : "MAP",
+			   "finishTime" : 1326381453318
+			}
+		 }`},
 	}
 
 	for _, tt := range tests {
@@ -101,7 +116,7 @@ func TestGetHistoryAPI(t *testing.T) {
 			var a entities.GetTasks
 			items = &a
 		case "taskattempt":
-			var a entities.GetTaskAttempts
+			var a entities.GetTaskAttempt
 			items = &a
 		}
 
