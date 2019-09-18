@@ -12,4 +12,5 @@
 *.out
 
 # binary
-fetcher
+olivine
+deploy.sh
