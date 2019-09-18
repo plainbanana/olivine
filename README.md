@@ -1,9 +1,9 @@
-# hadoop-jobhistoryfetcher
+# olivine
 A simple command to fetch hadoop mapreduce job histories.
 
 ## install
 
-`make` or `go get "github.com/plainbanana/hadoop-jobhistoryfetcher"`
+`make` or `go get "github.com/plainbanana/olivine"`
 
 ## usage
 

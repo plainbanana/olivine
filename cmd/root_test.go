@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/plainbanana/hadoop-jobhistoryfetcher/entities"
+	"github.com/plainbanana/olivine/entities"
 	"github.com/stretchr/testify/assert"
 )
 

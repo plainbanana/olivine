@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/gocarina/gocsv"
-	"github.com/plainbanana/hadoop-jobhistoryfetcher/entities"
+	"github.com/plainbanana/olivine/entities"
 	"github.com/spf13/cobra"
 )
 
