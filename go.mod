@@ -1,4 +1,4 @@
-module github.com/plainbanana/hadoop-jobhistoryfetcher
+module github.com/plainbanana/olivine
 
 go 1.12
 
