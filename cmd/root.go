@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,33 +11,74 @@ import (
 	"os"
 	"strings"
 
+	"github.com/comail/colog"
 	"github.com/gocarina/gocsv"
 	"github.com/plainbanana/olivine/entities"
 	"github.com/spf13/cobra"
 )
 
+const (
+	// FEachHost is flag
+	FEachHost int = 1 << iota
+)
+
 var (
 	config entities.Config
+	// ErrInputRange : err
+	ErrInputRange = errors.New("error: input out of range")
 )
 
 func init() {
 	cobra.OnInitialize(initHosts)
-	RootCmd.PersistentFlags().StringVar(&config.Hostfile, "hostfile", "", "Specify target hosts from a hostfile. default target is localhost.")
-	RootCmd.PersistentFlags().StringVarP(&config.TargetPort, "port", "p", "19888", "Specify the port where target hadoop job history server running on hosts.")
+
+	RootCmd.PersistentFlags().StringVar(&config.LogLevel, "log", "info", "Specify olivine minimun log level. {trace, debug, info, warn, error, alert}")
+	RootCmd.Flags().StringVar(&config.Hostfile, "hostfile", "", "Specify target hosts from a hostfile. default target is localhost.")
+	RootCmd.Flags().StringVarP(&config.TargetPort, "port", "p", "19888", "Specify the port where target hadoop job history server running on hosts.")
+
+	RootCmd.AddCommand(plotCmd)
+	plotCmd.Flags().StringVarP(&config.FileInput, "csv", "c", "olivine.csv", "Specify input csv filepath.")
+	plotCmd.Flags().StringVarP(&config.FileOutput, "save", "s", "histories.png", "Specify output image filename.")
 }
 
 // RootCmd : test
 var RootCmd = &cobra.Command{
-	Use:   "olivine",
-	Short: "A command to fetch hadoop job histories.",
-	Run:   rootcmd,
+	Use:              "olivine",
+	Short:            "A command to fetch hadoop job histories.",
+	PersistentPreRun: setLogMinLevel,
+	Run:              rootcmd,
+}
+
+func setLogMinLevel(cmd *cobra.Command, args []string) {
+	colog.SetDefaultLevel(colog.LDebug)
+	colog.SetMinLevel(getLogMinLevel())
+	colog.Register()
+	log.Println("info: colog level", config.LogLevel)
+}
+
+func getLogMinLevel() colog.Level {
+	switch config.LogLevel {
+	case "trace":
+		return colog.LTrace
+	case "debug":
+		return colog.LDebug
+	case "info":
+		return colog.LInfo
+	case "warn":
+		return colog.LWarning
+	case "error":
+		return colog.LError
+	case "alert":
+		return colog.LAlert
+	default:
+		return colog.LDebug
+	}
 }
 
 func initHosts() {
 	if config.Hostfile != "" {
 		fp, err := os.Open(config.Hostfile)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("error: ", err)
 		}
 		defer fp.Close()
 
@@ -58,12 +100,12 @@ func getHistoryAPI(url string, destInterface interface{}) (*http.Response, error
 	client := new(http.Client)
 	res, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("alert: ", err)
 	}
 
 	bodyBytes, _ := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("alert: ", err)
 	}
 
 	err = json.Unmarshal(bodyBytes, destInterface)
@@ -93,12 +135,12 @@ func rootcmd(cmd *cobra.Command, args []string) {
 		if err == nil && len(getJobs.Jobs.Job) != 0 {
 			mJobs[targetURI] = getJobs
 		} else if err != nil {
-			log.Println("Error: GET ", targetURI, err)
+			log.Println("alert: GET ", targetURI, err)
 		}
 
-		// fmt.Println("getjobs", getJobs, err)
+		log.Println("trace: jobs ", getJobs, err)
 	}
-	log.Println("found job at ", len(mJobs), "host(s)")
+	log.Println("info: found job at ", len(mJobs), "host(s)")
 
 	// call GET: /jobs/{JobID}/tasks
 	mTasks := make(map[string]entities.GetTasks)
@@ -115,12 +157,12 @@ func rootcmd(cmd *cobra.Command, args []string) {
 			_, err := getHistoryAPI(targetURI, &getTask)
 			if err == nil && len(getTask.Tasks.Task) != 0 {
 				mTasks[targetURI] = getTask
-				log.Println("job", job.ID, job.Name, "has", len(getTask.Tasks.Task), "task(s)", getTask.MapsTotal, "maps", getTask.ReducesTotal, "reduces")
+				log.Println("info: job", job.ID, job.Name, "has", len(getTask.Tasks.Task), "task(s)", getTask.MapsTotal, "maps", getTask.ReducesTotal, "reduces")
 			} else if err != nil {
-				log.Println("Error: GET", targetURI, err)
+				log.Println("alert: GET", targetURI, err)
 			}
 
-			// fmt.Println("response1", getTask, "ERR", err)
+			log.Println("trace: tasks ", getTask, " ERROR is ", err)
 		}
 	}
 
@@ -151,12 +193,12 @@ func rootcmd(cmd *cobra.Command, args []string) {
 				}
 
 				csv = append(csv, &csvRow)
-				// fmt.Println("csvrow", csvRow)
+				log.Println("trace: csvrow ", csvRow)
 			} else if err != nil {
-				log.Println("ERROR: GET", targetURI, err)
+				log.Println("alert: GET", targetURI, err)
 			}
 
-			// fmt.Println("response2", attempt, err)
+			log.Println("response2", attempt, err)
 		}
 	}
 
@@ -164,6 +206,7 @@ func rootcmd(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("info: success to create csv.")
 
 	fmt.Println(csvContent)
 }
