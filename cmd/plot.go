@@ -80,7 +80,7 @@ func plotRun(cmd *cobra.Command, args []string) {
 		log.Println("trace: histories map", h, len(v))
 	}
 
-	img := vgimg.New(15*vg.Inch, 20*vg.Inch)
+	img := vgimg.New(10*vg.Inch, 2*vg.Length(intTof64(len(res)))*vg.Inch)
 	dc := draw.New(img)
 
 	tt := draw.Tiles{
