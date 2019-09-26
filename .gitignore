@@ -5,6 +5,8 @@
 *.so
 *.dylib
 
+.DS_Store
+
 # Test binary, build with `go test -c`
 *.test
 
@@ -14,3 +16,6 @@
 # binary
 olivine
 deploy.sh
+
+testdata/input/*
+testdata/plot/*
