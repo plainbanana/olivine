@@ -1,6 +1,10 @@
 package entities
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"log"
+	"strconv"
+)
 
 // GetJobs is struct
 type GetJobs struct {
@@ -85,6 +89,11 @@ type GetTaskAttempt struct {
 	TaskID  string
 }
 
+// GetJobTaskAttemptCountersInterface is interface
+type GetJobTaskAttemptCountersInterface interface {
+	ToResult01(*Result01)
+}
+
 // GetJobTaskAttemptCounters is struct
 type GetJobTaskAttemptCounters struct {
 	JobTaskAttemptCounters struct {
@@ -97,4 +106,83 @@ type GetJobTaskAttemptCounters struct {
 		} `json:"taskAttemptCounterGroup"`
 		ID string `json:"id"`
 	} `json:"jobTaskAttemptCounters"`
+}
+
+// ToResult01 : map to result01 csv struct
+func (c GetJobTaskAttemptCounters) ToResult01(in *Result01) {
+	for _, v := range c.JobTaskAttemptCounters.TaskAttemptCounterGroup {
+		for _, vv := range v.Counter {
+			val := vv.Value
+			name := vv.Name
+
+			switch name {
+			case "FILE_BYTES_READ":
+				(*in).FileBytesRead = strconv.Itoa(val)
+			case "FILE_BYTES_WRITTEN":
+				(*in).FileBytesWritten = strconv.Itoa(val)
+			case "FILE_READ_OPS":
+				(*in).FileReadOps = strconv.Itoa(val)
+			case "FILE_LARGE_READ_OPS":
+				(*in).FileLargeReadOps = strconv.Itoa(val)
+			case "FILE_WRITE_OPS":
+				(*in).FileWriteOps = strconv.Itoa(val)
+			case "HDFS_BYTES_READ":
+				(*in).HDFSBytesRead = strconv.Itoa(val)
+			case "HDFS_BYTES_WRITTEN":
+				(*in).HDFSBytesWritten = strconv.Itoa(val)
+			case "HDFS_READ_OPS":
+				(*in).HDFSReadOps = strconv.Itoa(val)
+			case "HDFS_LARGE_READ_OPS":
+				(*in).HDFSLargeReadOps = strconv.Itoa(val)
+			case "HDFS_WRITE_OPS":
+				(*in).HDFSWriteOps = strconv.Itoa(val)
+			case "COMBINE_INPUT_RECORDS":
+				(*in).CombineInputRecords = strconv.Itoa(val)
+			case "COMBINE_OUTPUT_RECORDS":
+				(*in).CombineOutputRecords = strconv.Itoa(val)
+			case "REDUCE_INPUT_GROUPS":
+				(*in).ReduceInputGroups = strconv.Itoa(val)
+			case "REDUCE_SHUFFLE_BYTES":
+				(*in).ReduceShuffleBytes = strconv.Itoa(val)
+			case "REDUCE_INPUT_RECORDS":
+				(*in).ReduceInputRecords = strconv.Itoa(val)
+			case "REDUCE_OUTPUT_RECORDS":
+				(*in).ReduceOutputRecords = strconv.Itoa(val)
+			case "SPILLED_RECORDS":
+				(*in).SpilledRecords = strconv.Itoa(val)
+			case "SHUFFLED_MAPS":
+				(*in).ShuffledMaps = strconv.Itoa(val)
+			case "FAILED_SHUFFLE":
+				(*in).FailedShuffle = strconv.Itoa(val)
+			case "MERGED_MAP_OUTPUTS":
+				(*in).MergedMapOutputs = strconv.Itoa(val)
+			case "GC_TIME_MILLIS":
+				(*in).GCTimeMillis = strconv.Itoa(val)
+			case "CPU_MILLISECONDS":
+				(*in).CPUMilliseconds = strconv.Itoa(val)
+			case "PHYSICAL_MEMORY_BYTES":
+				(*in).PhysicalMemoryBytes = strconv.Itoa(val)
+			case "VIRTUAL_MEMORY_BYTES":
+				(*in).VirtualMemoryBytes = strconv.Itoa(val)
+			case "COMMITTED_HEAP_BYTES":
+				(*in).CommitedHeapBytes = strconv.Itoa(val)
+			case "BAD_ID":
+				(*in).BadID = strconv.Itoa(val)
+			case "CONNECTION":
+				(*in).Connection = strconv.Itoa(val)
+			case "IO_ERROR":
+				(*in).IOError = strconv.Itoa(val)
+			case "WRONG_LENGTH":
+				(*in).WrongLength = strconv.Itoa(val)
+			case "WRONG_MAP":
+				(*in).WrongMap = strconv.Itoa(val)
+			case "WRONG_REDUCE":
+				(*in).WrongReduce = strconv.Itoa(val)
+			case "BYTES_WRITTEN":
+				(*in).BytesWritten = strconv.Itoa(val)
+			default:
+				log.Println("warn:", v.CounterGroupName, name, "is undefined")
+			}
+		}
+	}
 }

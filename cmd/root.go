@@ -18,6 +18,7 @@ import (
 )
 
 const (
+	version = "0.3.0"
 	// FEachHost is flag
 	FEachHost int = 1 << iota
 )
@@ -30,6 +31,8 @@ var (
 
 func init() {
 	cobra.OnInitialize(initHosts)
+
+	RootCmd.AddCommand(versionCmd)
 
 	RootCmd.PersistentFlags().StringVar(&config.LogLevel, "log", "info", "Specify olivine minimun log level. {trace, debug, info, warn, error, alert}")
 	RootCmd.Flags().StringVar(&config.Hostfile, "hostfile", "", "Specify target hosts from a hostfile. default target is localhost.")
@@ -52,7 +55,7 @@ func setLogMinLevel(cmd *cobra.Command, args []string) {
 	colog.SetDefaultLevel(colog.LDebug)
 	colog.SetMinLevel(getLogMinLevel())
 	colog.Register()
-	log.Println("info: colog level", config.LogLevel)
+	log.Println("debug: colog level", config.LogLevel)
 }
 
 func getLogMinLevel() colog.Level {
@@ -118,10 +121,12 @@ func rootcmd(cmd *cobra.Command, args []string) {
 		jobs     string
 		tasks    string
 		attempts string
+		counters string
 	}{
 		jobs:     "jobs",
 		tasks:    "tasks",
 		attempts: "attempts",
+		counters: "counters",
 	}
 
 	// call GET: /jobs
@@ -168,18 +173,20 @@ func rootcmd(cmd *cobra.Command, args []string) {
 
 	// fmt.Println("map get", mTasks)
 	// call GET: /jobs/{JobID}/tasks/{TaskID}/attempts/{TaskAttemptID}
+	// call GET: /jobs/{JobID}/tasks/{TaskID}/attempts/{TaskAttemptID}/counters
 	var csv []*entities.Result01
 
 	for uri, getTasks := range mTasks {
 		for _, task := range getTasks.Tasks.Task {
 			var attempt entities.GetTaskAttempt
+			var counters entities.GetJobTaskAttemptCounters
 
 			targetURI := strings.Join([]string{uri, task.ID, uris.attempts, task.SuccessfulAttempt}, "/")
 			attempt.JobID = getTasks.JobID
 			attempt.JobName = getTasks.JobName
 			attempt.TaskID = task.ID
-			// fmt.Println("attemptLog", attempt)
 			_, err := getHistoryAPI(targetURI, &attempt)
+
 			if err == nil {
 				csvRow := entities.Result01{
 					JobName:     attempt.JobName,
@@ -192,18 +199,27 @@ func rootcmd(cmd *cobra.Command, args []string) {
 					Type:        attempt.TaskAttempt.Type,
 				}
 
+				targetURI := strings.Join([]string{uri, uris.counters}, "/")
+				_, err = getHistoryAPI(targetURI, &counters)
+				if err != nil {
+					counters.ToResult01(&csvRow)
+				} else {
+					log.Println("alert: GET", targetURI, err)
+				}
+
 				csv = append(csv, &csvRow)
 				log.Println("trace: csvrow ", csvRow)
 			} else if err != nil {
 				log.Println("alert: GET", targetURI, err)
 			}
 
-			log.Println("response2", attempt, err)
+			log.Println("trace: response2", attempt, err)
 		}
 	}
 
 	csvContent, err := gocsv.MarshalString(&csv)
 	if err != nil {
+		log.Println("alert: failed to marshall string to csv.")
 		log.Fatal(err)
 	}
 	log.Println("info: success to create csv.")

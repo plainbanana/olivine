@@ -96,6 +96,161 @@ func TestGetHistoryAPI(t *testing.T) {
 			   "finishTime" : 1326381453318
 			}
 		 }`},
+		{"valid04", "taskattemptcounter", `{
+			"jobTaskAttemptCounters" : {
+			   "taskAttemptCounterGroup" : [
+				  {
+					 "counterGroupName" : "org.apache.hadoop.mapreduce.FileSystemCounter",
+					 "counter" : [
+						{
+						   "value" : 2363,
+						   "name" : "FILE_BYTES_READ"
+						},
+						{
+						   "value" : 54372,
+						   "name" : "FILE_BYTES_WRITTEN"
+						},
+						{
+						   "value" : 0,
+						   "name" : "FILE_READ_OPS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "FILE_LARGE_READ_OPS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "FILE_WRITE_OPS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "HDFS_BYTES_READ"
+						},
+						{
+						   "value" : 0,
+						   "name" : "HDFS_BYTES_WRITTEN"
+						},
+					   {
+						   "value" : 0,
+						   "name" : "HDFS_READ_OPS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "HDFS_LARGE_READ_OPS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "HDFS_WRITE_OPS"
+						}
+					 ]
+				  },
+				  {
+					 "counterGroupName" : "org.apache.hadoop.mapreduce.TaskCounter",
+					 "counter" : [
+						{
+						   "value" : 0,
+						   "name" : "COMBINE_INPUT_RECORDS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "COMBINE_OUTPUT_RECORDS"
+						},
+						{
+						   "value" : 460,
+						   "name" : "REDUCE_INPUT_GROUPS"
+						},
+						{
+						   "value" : 2235,
+						   "name" : "REDUCE_SHUFFLE_BYTES"
+						},
+						{
+						   "value" : 460,
+						   "name" : "REDUCE_INPUT_RECORDS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "REDUCE_OUTPUT_RECORDS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "SPILLED_RECORDS"
+						},
+						{
+						   "value" : 1,
+						   "name" : "SHUFFLED_MAPS"
+						},
+						{
+						   "value" : 0,
+						   "name" : "FAILED_SHUFFLE"
+						},
+						{
+						   "value" : 1,
+						   "name" : "MERGED_MAP_OUTPUTS"
+						},
+						{
+						   "value" : 26,
+						   "name" : "GC_TIME_MILLIS"
+						},
+						{
+						   "value" : 860,
+						   "name" : "CPU_MILLISECONDS"
+						},
+						{
+						   "value" : 107839488,
+						   "name" : "PHYSICAL_MEMORY_BYTES"
+						},
+						{
+						   "value" : 1123147776,
+						   "name" : "VIRTUAL_MEMORY_BYTES"
+						},
+						{
+						   "value" : 57475072,
+						   "name" : "COMMITTED_HEAP_BYTES"
+						}
+					 ]
+				  },
+				  {
+					 "counterGroupName" : "Shuffle Errors",
+					 "counter" : [
+						{
+						   "value" : 0,
+						   "name" : "BAD_ID"
+						},
+						{
+						   "value" : 0,
+						   "name" : "CONNECTION"
+						},
+						{
+						   "value" : 0,
+						   "name" : "IO_ERROR"
+						},
+						{
+						   "value" : 0,
+						   "name" : "WRONG_LENGTH"
+						},
+						{
+						   "value" : 0,
+						   "name" : "WRONG_MAP"
+						},
+						{
+						   "value" : 0,
+						   "name" : "WRONG_REDUCE"
+						}
+					 ]
+				  },
+				  {
+					 "counterGroupName" : "org.apache.hadoop.mapreduce.lib.output.FileOutputFormatCounter",
+					 "counter" : [
+						{
+						   "value" : 0,
+						   "name" : "BYTES_WRITTEN"
+						}
+					 ]
+				  }
+			   ],
+			   "id" : "attempt_1326381300833_2_2_m_0_0"
+			}
+		 }`},
 	}
 
 	for _, tt := range tests {
@@ -117,6 +272,9 @@ func TestGetHistoryAPI(t *testing.T) {
 			items = &a
 		case "taskattempt":
 			var a entities.GetTaskAttempt
+			items = &a
+		case "taskattemptcounter":
+			var a entities.GetJobTaskAttemptCounters
 			items = &a
 		}
 
