@@ -84,3 +84,17 @@ type GetTaskAttempt struct {
 	JobName string
 	TaskID  string
 }
+
+// GetJobTaskAttemptCounters is struct
+type GetJobTaskAttemptCounters struct {
+	JobTaskAttemptCounters struct {
+		TaskAttemptCounterGroup []struct {
+			CounterGroupName string `json:"counterGroupName"`
+			Counter          []struct {
+				Value int    `json:"value"`
+				Name  string `json:"name"`
+			} `json:"counter"`
+		} `json:"taskAttemptCounterGroup"`
+		ID string `json:"id"`
+	} `json:"jobTaskAttemptCounters"`
+}
