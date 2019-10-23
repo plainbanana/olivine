@@ -181,7 +181,7 @@ func (c GetJobTaskAttemptCounters) ToResult01(in *Result01) {
 			case "BYTES_WRITTEN":
 				(*in).BytesWritten = strconv.Itoa(val)
 			default:
-				log.Println("warn:", v.CounterGroupName, name, "is undefined")
+				log.Println("warn:", v.CounterGroupName, name, "is undefined", val)
 			}
 		}
 	}
