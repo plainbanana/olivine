@@ -199,12 +199,12 @@ func rootcmd(cmd *cobra.Command, args []string) {
 					Type:        attempt.TaskAttempt.Type,
 				}
 
-				targetURI := strings.Join([]string{uri, uris.counters}, "/")
-				_, err = getHistoryAPI(targetURI, &counters)
+				targetCountURI := strings.Join([]string{targetURI, uris.counters}, "/")
+				_, err = getHistoryAPI(targetCountURI, &counters)
 				if err != nil {
-					counters.ToResult01(&csvRow)
+					log.Println("alert: GET", targetCountURI, err)
 				} else {
-					log.Println("alert: GET", targetURI, err)
+					counters.ToResult01(&csvRow)
 				}
 
 				csv = append(csv, &csvRow)
