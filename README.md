@@ -24,6 +24,7 @@ Usage:
 Available Commands:
   help        Help about any command
   plot        Visualize data.
+  version     return versions.
 
 Flags:
   -h, --help              help for olivine
