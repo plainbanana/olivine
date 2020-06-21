@@ -3,7 +3,7 @@ A simple command to fetch hadoop mapreduce job histories.
 
 ## install
 
-`make` or `go get "github.com/plainbanana/olivine"`
+download built binary from [github release](https://github.com/plainbanana/olivine/releases/latest) or `$ go get "github.com/plainbanana/olivine"` or `$ make` 
 
 ## usage
 
